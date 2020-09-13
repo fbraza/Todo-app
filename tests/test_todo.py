@@ -1,4 +1,4 @@
-from todo_app.lib.todo import Todo
+from .lib.todo import Todo
 import pytest
 
 DONE_MARKER, UNDONE_MARKER = "\u2713", " "
