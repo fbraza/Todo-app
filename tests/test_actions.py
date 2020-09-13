@@ -1,4 +1,4 @@
-from .lib.todo import Todo
+from ..lib.todo import Todo
 import pytest
 import pickle
 import plyvel
