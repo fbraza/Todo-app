@@ -2,7 +2,7 @@ class Todo():
 
     DONE_MARKER, UNDONE_MARKER = "\u2713", " "
 
-    def __init__(self, description, priority="Normal", group=None):
+    def __init__(self, description, priority="Normal", done=False):
         """
         Constructor of our Todo object
 
@@ -17,12 +17,11 @@ class Todo():
         -------
         - None
         """
-        if not self.is_right_priority(priority) or not self.is_right_group(group):
-            raise ValueError("Check your values for priority or group. Run --help for more details")
+        if not self.is_right_priority(priority):
+            raise ValueError("Check your values for priority. Run --help for more details")
         self.description = description
         self.priority = priority
-        self.group = group
-        self.done = False
+        self.done = done
 
     def __str__(self):
         """
@@ -33,11 +32,35 @@ class Todo():
         - None
         """
         marker = Todo.DONE_MARKER if self.done else Todo.UNDONE_MARKER
-        return """\n--- {} ---\n[{}] : {} : {}""".format(self.group, marker, self.description, self.priority)
+        return "[{}] : {} : {}".format(marker, self.description, self.priority)
+
+    def __lt__(self, other):
+        """
+        Less then method to compare task by priority
+        Useful if we want to sort them by this tag
+
+        Return:
+        -------
+        - boolean
+        """
+        return self.priority < other.priority
+
+    def __eq__(self, other):
+        """
+        equal method to compare task by title
+        There is little probability that an user write two times
+        the same task. So we take the description of the task as
+        am equality operand
+
+        Return:
+        -------
+        - boolean
+        """
+        return self.description == other.description
 
     def is_done(self):
         """
-        Check if the task is done
+        Check if the task is `done`
 
         Return:
         -------
@@ -45,28 +68,34 @@ class Todo():
         """
         return self.done
 
+    def set_done(self):
+        """
+        Setter method for the attribute `done
+
+        Return:
+        -------
+        - None
+        """
+        self.done = True
+
+    def redefine_priority(self, priority):
+        """
+        Setter method for the attribute `priority`
+
+        Return:
+        -------
+        - None
+        """
+        if not self.is_right_priority(priority):
+            raise ValueError("Choose between: High, Normal or Low")
+        self.priority = priority
+
     def is_right_priority(self, priority):
         """
-        Check if the priority the user input is included in the possible choice provided by the API
+        Check if the priority the user inputted is included in the possible choice provided by the API
 
         Return:
         -------
         - Boolean
         """
         return priority in ["High", "Normal", "Low"]
-
-    def is_right_group(self, group):
-        return group in ["Family", "Work", "Sport", "Health", "Finance", None]
-
-    def set_done(self):
-        self.done = True
-
-    def redefine_priority(self, priority):
-        if not self.is_right_priority(priority):
-            raise ValueError("Choose between: High, Normal or Low")
-        self.priority = priority
-
-    def set_group(self, group):
-        if not self.is_right_group(group):
-            raise ValueError("Choose between: Family, Work, Sport, Health or Finance")
-        self.group = group

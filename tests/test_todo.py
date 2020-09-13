@@ -1,16 +1,20 @@
-from project.lib.todo import Todo
+from todo_app.lib.todo import Todo
 import pytest
 
-
-task_1 = Todo("Do Shopping", "Low")
-task_2 = Todo("Go Fishing", "Low")
 DONE_MARKER, UNDONE_MARKER = "\u2713", " "
-description, priority, done = task_1.description, task_1.priority, task_1.done
+task_1 = Todo("Do Shopping")
+task_2 = Todo("Go Fishing", "Low")
+description_1, priority_1, done_1 = task_1.description, task_1.priority, task_1.done
 
 
-@pytest.mark.parametrize("input, expected", [(description, "Do Shopping"), (priority, "Low"), (done, False)])
-def test_todo_attr(input, expected):
+@pytest.mark.parametrize("input, expected", [(description_1, "Do Shopping"), (priority_1, "Normal"), (done_1, False)])
+def test_task_1_attr(input, expected):
     assert input == expected
+
+
+def test_constructor_error():
+    with pytest.raises(ValueError):
+        Todo("Do the test", priority="Medium")
 
 
 def test_set_done():
@@ -30,4 +34,4 @@ def test_catching_test_redefine_priority_error():
 
 def test__str__():
     marker, desc, prio = DONE_MARKER, task_2.description, task_2.priority
-    assert task_2.__str__() == f"[{marker}] : {desc} : {prio}"
+    assert task_2.__str__() == "[{}] : {} : {}".format(marker, desc, prio)
