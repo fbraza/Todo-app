@@ -1,7 +1,7 @@
 # Path hack.
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
-from ..lib.todo import Todo
+from lib.todo import Todo
 import pytest
 import pickle
 import plyvel
