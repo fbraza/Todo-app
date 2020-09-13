@@ -43,7 +43,8 @@ class Todo():
         -------
         - boolean
         """
-        return self.priority < other.priority
+        priorities = ["High", "Normal", "Low"]
+        return priorities.index(self.priority) < priorities.index(other.priority)
 
     def __eq__(self, other):
         """

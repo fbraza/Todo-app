@@ -8,7 +8,7 @@ import plyvel
 def db():
     db = plyvel.DB("../taskdb", create_if_missing=True)
     tasks = (Todo("Buy bananas", "High"),
-             Todo("Read new Batman comic", done=True), 
+             Todo("Read new Batman comic", done=True),
              Todo("Schedule doctor appointment", "Low"))
     for task in tasks:
         db.put(bytes(task.description, encoding='utf-8'), pickle.dumps(task))
@@ -17,10 +17,8 @@ def db():
     plyvel.destroy_db("../taskdb")
 
 
-def test_storage(db):
-    list_keys = []
-    for key, _ in db.iterator():
-        list_keys.append(key)
+def test_store_tasks(db):
+    list_keys = [key for key, _ in db.iterator()]
     assert len(list_keys) == 3
 
 
@@ -32,18 +30,10 @@ def test_display_all_task(db):
 
 
 def test_select_only_undone_task(db):
-    selected_tasks = []
-    for key, value in db.iterator():
-        task = pickle.loads(db.get(key))
-        if not task.done: 
-            selected_tasks.append(task)
+    selected_tasks = [pickle.loads(db.get(key)) for key, _ in db.iterator() if not pickle.loads(db.get(key)).done]
     assert len(selected_tasks) == 2
 
 
 def test_order_by_priority(db):
-    tasks = []
-    for key, value in db.iterator():
-        task = pickle.loads(db.get(key))
-        tasks.append(task)
-    tasks = sorted(tasks)
+    tasks = sorted([pickle.loads(db.get(key)) for key, _ in db.iterator()])
     assert tasks[0] == Todo("Buy bananas", "High")
