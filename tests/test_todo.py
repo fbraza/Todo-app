@@ -35,3 +35,4 @@ def test_catching_test_redefine_priority_error():
 def test__str__():
     marker, desc, prio = DONE_MARKER, task_2.description, task_2.priority
     assert task_2.__str__() == "[{}] : {} : {}".format(marker, desc, prio)
+
