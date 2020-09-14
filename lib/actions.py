@@ -52,10 +52,12 @@ def display_all_tasks(ordered=False, all=False):
     db.close()
     # sort tasks if needed
     tasks = sorted(tasks) if ordered else tasks
-    system("clear")
-    print("------- Your taks -------\n")
-    for task in tasks:
-        print(task)
+    if not tasks:
+        print("You have no task registered. Add one. See --help")
+    else:
+        print("------- Your taks -------\n")
+        for task in tasks:
+            print(task)
 
 
 def redifine_priority(task_title, new_priority):
@@ -70,7 +72,7 @@ def redifine_priority(task_title, new_priority):
     -------
     - None
     """
-    db = plyvel.DB("../taskdb", create_if_missing=True)
+    db = plyvel.DB("../taskdb", create_if_missing=False)
     task_to_modify = db.get(bytes(task_title, encoding="utf-8"))
     if task_to_modify is None:
         db.close()
@@ -80,3 +82,18 @@ def redifine_priority(task_title, new_priority):
         task_to_modify.priority = new_priority
         db.put(bytes(task_title, encoding="utf-8"), pickle.dumps(task_to_modify))
         db.close()
+
+
+def purge_databe():
+    """
+    Function defined to delete all done tasks.
+
+    Return:
+    -------
+    - None
+    """
+    db = plyvel.DB("../taskdb", create_if_missing=False)
+    tasks_to_delete = [key for key, _ in db.iterator() if pickle.loads(db.get(key)).done]
+    for key in tasks_to_delete:
+        db.delete(key)
+    db.close()

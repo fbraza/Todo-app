@@ -3,7 +3,6 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 # imports
-from lib.actions import redifine_priority
 from lib.todo import Todo
 import pytest
 import pickle
@@ -54,6 +53,14 @@ def test_redifine_priority_with_correct_title(db):
     # test that it overwrites correctly
     list_keys = [key for key, _ in db.iterator()]
     assert len(list_keys) == 3
-    # test that task puled from db has correct priority now
+    # test that task pulled from db has correct priority now
     task_modified = db.get(bytes(task_title, encoding="utf-8"))
     assert pickle.loads(task_modified).priority == "Low"
+
+
+def test_purge_database(db):
+    tasks_to_delete = [key for key, _ in db.iterator() if pickle.loads(db.get(key)).done]
+    for key in tasks_to_delete:
+        db.delete(key)
+    list_keys = [key for key, _ in db.iterator()]
+    assert len(list_keys) == 2
