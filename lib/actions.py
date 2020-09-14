@@ -21,7 +21,7 @@ def create_task(title, priority="Normal", done=False):
     -------
     - None
     """
-    db = plyvel.DB("../taskdb", create_if_missing=True)
+    db = plyvel.DB("./taskdb", create_if_missing=True)
     task = Todo(title, priority, done)
     db.put(bytes(task.description, encoding='utf-8'), pickle.dumps(task))
     db.close()
@@ -41,7 +41,7 @@ def display_all_tasks(ordered=False, all=False):
     -------
     - None
     """
-    db = plyvel.DB("../taskdb", create_if_missing=True)
+    db = plyvel.DB("./taskdb", create_if_missing=True)
     tasks = []
     # select tasks
     if all:
@@ -72,7 +72,7 @@ def redifine_priority(task_title, new_priority):
     -------
     - None
     """
-    db = plyvel.DB("../taskdb", create_if_missing=False)
+    db = plyvel.DB("./taskdb", create_if_missing=False)
     task_to_modify = db.get(bytes(task_title, encoding="utf-8"))
     if task_to_modify is None:
         db.close()
@@ -92,7 +92,7 @@ def purge_databe():
     -------
     - None
     """
-    db = plyvel.DB("../taskdb", create_if_missing=False)
+    db = plyvel.DB("./taskdb", create_if_missing=False)
     tasks_to_delete = [key for key, _ in db.iterator() if pickle.loads(db.get(key)).done]
     for key in tasks_to_delete:
         db.delete(key)

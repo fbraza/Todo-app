@@ -11,7 +11,7 @@ import plyvel
 
 @pytest.fixture(scope="module")
 def db():
-    plyvel.destroy_db("../taskdb")
+    plyvel.destroy_db("./taskdb")
     db = plyvel.DB("../taskdb", create_if_missing=True)
     tasks = (Todo("Buy bananas", "High"),
              Todo("Read new Batman comic", done=True),
