@@ -1,4 +1,4 @@
-from todo import Todo
+from .todo import Todo
 from os import system
 import pickle
 import plyvel
@@ -43,11 +43,12 @@ def display_all_tasks(ordered=False, all=False):
     """
     db = plyvel.DB("../taskdb", create_if_missing=True)
     tasks = []
-    # select tasks and close db
+    # select tasks
     if all:
         tasks = [pickle.loads(db.get(key)) for key, _ in db.iterator()]
     else:
         tasks = [pickle.loads(db.get(key)) for key, _ in db.iterator() if not pickle.loads(db.get(key)).done]
+    # close the database
     db.close()
     # sort tasks if needed
     tasks = sorted(tasks) if ordered else tasks
@@ -55,3 +56,27 @@ def display_all_tasks(ordered=False, all=False):
     print("------- Your taks -------\n")
     for task in tasks:
         print(task)
+
+
+def redifine_priority(task_title, new_priority):
+    """
+    Function defined to fetch data from, modify it and put it back to the database.
+
+    Parameters:
+    -----------
+    - task_title: str, description of the task, used as key in the database
+    - new_priority: str, new value for the priority attribute of our Todo object
+    Return:
+    -------
+    - None
+    """
+    db = plyvel.DB("../taskdb", create_if_missing=True)
+    task_to_modify = db.get(bytes(task_title, encoding="utf-8"))
+    if task_to_modify is None:
+        db.close()
+        raise ValueError("Unexisting or mispelled task. To see all your task do...")
+    else:
+        task_to_modify = pickle.loads(task_to_modify)
+        task_to_modify.priority = new_priority
+        db.put(bytes(task_title, encoding="utf-8"), pickle.dumps(task_to_modify))
+        db.close()

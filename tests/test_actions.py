@@ -3,6 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 # imports
+from lib.actions import redifine_priority
 from lib.todo import Todo
 import pytest
 import pickle
@@ -43,3 +44,16 @@ def test_select_only_undone_task(db):
 def test_order_by_priority(db):
     tasks = sorted([pickle.loads(db.get(key)) for key, _ in db.iterator()])
     assert tasks[0] == Todo("Buy bananas", "High")
+
+
+def test_redifine_priority_with_correct_title(db):
+    task_title, new_priority = "Buy bananas", "Low"
+    task_to_modify = pickle.loads(db.get(bytes(task_title, encoding="utf-8")))
+    task_to_modify.priority = new_priority
+    db.put(bytes(task_title, encoding="utf-8"), pickle.dumps(task_to_modify))
+    # test that it overwrites correctly
+    list_keys = [key for key, _ in db.iterator()]
+    assert len(list_keys) == 3
+    # test that task puled from db has correct priority now
+    task_modified = db.get(bytes(task_title, encoding="utf-8"))
+    assert pickle.loads(task_modified).priority == "Low"
