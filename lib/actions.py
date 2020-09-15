@@ -4,7 +4,7 @@ import pickle
 import plyvel
 
 
-def create_task(title, priority="Normal", done=False):
+def create_task(title: str, priority: str, done: bool = False):
     """
     Function defined to leverage the Todo class constructor
     to instantiate a Todo object and save it in the leveldb
@@ -27,15 +27,15 @@ def create_task(title, priority="Normal", done=False):
     db.close()
 
 
-def display_all_tasks(ordered=False, all=False):
+def display_all_tasks(ordered: bool, all: bool):
     """
     Function defined to display the tasks saved in the leveldb
     database.
 
     Parameters:
     -----------
-    - ordered: str, if True tasks will be orderer and display by priority
-    - all: str, if True all tasks including the one already done will be display
+    - ordered: bool, if True tasks will be orderer and display by priority
+    - all: bool, if True all tasks including the one already done will be display
 
     Return:
     -------
@@ -60,31 +60,50 @@ def display_all_tasks(ordered=False, all=False):
             print(task)
 
 
-def redifine_priority(task_title, new_priority):
+def select_task(title: str):
     """
-    Function defined to fetch data from, modify it and put it back to the database.
+    Function defined to select a task in order to modify its status
 
-    Parameters:
-    -----------
-    - task_title: str, description of the task, used as key in the database
-    - new_priority: str, new value for the priority attribute of our Todo object
+    Parameter:
+    ----------
+    title: str, title / description of the task
+
     Return:
     -------
-    - None
+    - Todo Object
     """
     db = plyvel.DB("./taskdb", create_if_missing=False)
-    task_to_modify = db.get(bytes(task_title, encoding="utf-8"))
-    if task_to_modify is None:
-        db.close()
-        raise ValueError("Unexisting or mispelled task. To see all your task do...")
-    else:
-        task_to_modify = pickle.loads(task_to_modify)
-        task_to_modify.priority = new_priority
-        db.put(bytes(task_title, encoding="utf-8"), pickle.dumps(task_to_modify))
-        db.close()
+    selected_task = [pickle.loads(db.get(key)) for key, _ in db.iterator() if key == bytes(title, encoding="utf-8")]
+    try:
+        if len(selected_task) == 0:
+            raise ValueError("\nError:\nTask not found. Check if the task name is present or correctly spelt")
+    except ValueError as message:
+        print(message)
+        return
+    db.close()
+    return selected_task[0]
 
 
-def purge_databe():
+def set_done(title: str):
+    """
+    Function defined to set a task done
+
+    Parameter:
+    ----------
+    title: str, title / description of the task
+
+    Return:
+    -------
+    - Todo Object
+    """
+    task = select_task(title)
+    task.done = True
+    db = plyvel.DB("./taskdb", create_if_missing=False)
+    db.put(bytes(title, encoding="utf-8"), pickle.dumps(task))
+    db.close()
+
+
+def purge_done():
     """
     Function defined to delete all done tasks.
 

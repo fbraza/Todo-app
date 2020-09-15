@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 # imports
-from lib.todo import Todo
+from ..lib.actions import *
 import pytest
 import pickle
 import plyvel
@@ -35,27 +35,15 @@ def test_display_all_task(db):
         assert task.__str__() == "[{}] : {} : {}".format(marker, task.description, task.priority)
 
 
-def test_select_only_undone_task(db):
-    selected_tasks = [pickle.loads(db.get(key)) for key, _ in db.iterator() if not pickle.loads(db.get(key)).done]
-    assert len(selected_tasks) == 2
+def test_select_task(db):
+    title = "Buy bananas"
+    selected_task = [pickle.loads(db.get(key)) for key, _ in db.iterator() if key == bytes(title, encoding="utf-8")]
+    assert len(selected_task) == 1
 
 
 def test_order_by_priority(db):
     tasks = sorted([pickle.loads(db.get(key)) for key, _ in db.iterator()])
     assert tasks[0] == Todo("Buy bananas", "High")
-
-
-def test_redifine_priority_with_correct_title(db):
-    task_title, new_priority = "Buy bananas", "Low"
-    task_to_modify = pickle.loads(db.get(bytes(task_title, encoding="utf-8")))
-    task_to_modify.priority = new_priority
-    db.put(bytes(task_title, encoding="utf-8"), pickle.dumps(task_to_modify))
-    # test that it overwrites correctly
-    list_keys = [key for key, _ in db.iterator()]
-    assert len(list_keys) == 3
-    # test that task pulled from db has correct priority now
-    task_modified = db.get(bytes(task_title, encoding="utf-8"))
-    assert pickle.loads(task_modified).priority == "Low"
 
 
 def test_purge_database(db):
