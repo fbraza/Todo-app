@@ -11,7 +11,7 @@ import plyvel
 
 @pytest.fixture(scope="module")
 def db():
-    plyvel.destroy_db("../taskdb")
+    plyvel.destroy_db("./taskdb")
     db = plyvel.DB("../taskdb", create_if_missing=True)
     tasks = (Todo("Buy bananas", "High"),
              Todo("Read new Batman comic", done=True),
@@ -35,11 +35,20 @@ def test_display_all_task(db):
         assert task.__str__() == "[{}] : {} : {}".format(marker, task.description, task.priority)
 
 
-def test_select_only_undone_task(db):
-    selected_tasks = [pickle.loads(db.get(key)) for key, _ in db.iterator() if not pickle.loads(db.get(key)).done]
-    assert len(selected_tasks) == 2
+def test_select_task(db):
+    title = "Buy bananas"
+    selected_task = [pickle.loads(db.get(key)) for key, _ in db.iterator() if key == bytes(title, encoding="utf-8")]
+    assert len(selected_task) == 1
 
 
 def test_order_by_priority(db):
     tasks = sorted([pickle.loads(db.get(key)) for key, _ in db.iterator()])
     assert tasks[0] == Todo("Buy bananas", "High")
+
+
+def test_purge_database(db):
+    tasks_to_delete = [key for key, _ in db.iterator() if pickle.loads(db.get(key)).done]
+    for key in tasks_to_delete:
+        db.delete(key)
+    list_keys = [key for key, _ in db.iterator()]
+    assert len(list_keys) == 2

@@ -2,7 +2,7 @@ class Todo():
 
     DONE_MARKER, UNDONE_MARKER = "\u2713", " "
 
-    def __init__(self, description, priority="Normal", done=False):
+    def __init__(self, description: str, priority="Normal", done: bool = False):
         """
         Constructor of our Todo object
 
@@ -17,8 +17,12 @@ class Todo():
         -------
         - None
         """
-        if not self.is_right_priority(priority):
-            raise ValueError("Check your values for priority. Run --help for more details")
+        try:
+            if not self.is_right_priority(priority):
+                raise ValueError("\nError:\n  Only Low, Normal or High for priority. Run todo add --help for more details")
+        except ValueError as message:
+            print(message)
+            return
         self.description = description
         self.priority = priority
         self.done = done
@@ -39,6 +43,10 @@ class Todo():
         Less then method to compare task by priority
         Useful if we want to sort them by this tag
 
+        Parameter:
+        ----------
+        other: Todo object
+
         Return:
         -------
         - boolean
@@ -52,6 +60,10 @@ class Todo():
         There is little probability that an user write two times
         the same task. So we take the description of the task as
         am equality operand
+
+        Parameter:
+        ----------
+        other: Todo object
 
         Return:
         -------
@@ -79,7 +91,7 @@ class Todo():
         """
         self.done = True
 
-    def redefine_priority(self, priority):
+    def redefine_priority(self, priority: str):
         """
         Setter method for the attribute `priority`
 
@@ -87,8 +99,12 @@ class Todo():
         -------
         - None
         """
-        if not self.is_right_priority(priority):
-            raise ValueError("Choose between: High, Normal or Low")
+        try:
+            if not self.is_right_priority(priority):
+                raise ValueError("\nError:\n  Only Low, Normal or High for priority. Run todo add --help for more details")
+        except ValueError as message:
+            print(message)
+            return
         self.priority = priority
 
     def is_right_priority(self, priority):
