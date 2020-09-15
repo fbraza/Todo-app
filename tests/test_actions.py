@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 # imports
-from .lib.actions import *
+from lib.actions import *
 import pytest
 import pickle
 import plyvel
